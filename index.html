@@ -1,0 +1,492 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>สมุดสุขภาพแมว</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
+<style>
+/* Layout: sticky top bar with tabs, one centred column. Home = due list + cat cards; Schedule = booklet-style matrix; Cat = profile, weight chart, history. */
+:root{
+  --bg:#F2F6F5; --surface:#FFFFFF; --surface2:#E7EFEE; --ink:#13292C; --muted:#566D71; --line:#D3DEDD;
+  --accent:#0B6E78; --accent-ink:#FFFFFF; --accent-soft:#D6ECEE;
+  --bad:#B5301F; --bad-soft:#FBE3DF; --warn:#8A5800; --warn-soft:#FAEAC4; --ok:#2B7048; --ok-soft:#DCF0E3;
+  --c1:#B83A2A; --c2:#B45309; --c3:#4D7C0F; --c4:#0369A1; --c5:#6D28D9; --c6:#BE185D; --c7:#475569; --on-cat:#FFFFFF;
+  --f-head:'Prompt','IBM Plex Sans Thai',system-ui,sans-serif; --f-body:'IBM Plex Sans Thai',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1819; --surface:#152325; --surface2:#1D2F31; --ink:#E4EFEE; --muted:#93A9AC; --line:#2A3F42;
+  --accent:#4FC3CF; --accent-ink:#06282C; --accent-soft:#12383C;
+  --bad:#FF8D7E; --bad-soft:#3A1B17; --warn:#F2B84B; --warn-soft:#38290A; --ok:#7FD39C; --ok-soft:#142E1E;
+  --c1:#F08A7C; --c2:#F5B04A; --c3:#A3D65C; --c4:#5BB8EE; --c5:#B79BFA; --c6:#F07FB0; --c7:#A3B2C4; --on-cat:#10201F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1819; --surface:#152325; --surface2:#1D2F31; --ink:#E4EFEE; --muted:#93A9AC; --line:#2A3F42;
+  --accent:#4FC3CF; --accent-ink:#06282C; --accent-soft:#12383C;
+  --bad:#FF8D7E; --bad-soft:#3A1B17; --warn:#F2B84B; --warn-soft:#38290A; --ok:#7FD39C; --ok-soft:#142E1E;
+  --c1:#F08A7C; --c2:#F5B04A; --c3:#A3D65C; --c4:#5BB8EE; --c5:#B79BFA; --c6:#F07FB0; --c7:#A3B2C4; --on-cat:#10201F; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:30}
+h1,h2,h3{font-family:var(--f-head);font-weight:600;line-height:1.3;margin:0;text-wrap:balance}
+h1{font-size:24px} h2{font-size:17px} h3{font-size:15px}
+p{margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.topin{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;align-items:center;gap:10px;font:600 18px var(--f-head);color:var(--ink)}
+.brand svg{width:30px;height:30px;fill:var(--accent)}
+.tabs{display:flex;gap:4px;margin-left:auto;max-width:100%;overflow-x:auto}
+.tab{font:inherit;font-weight:500;color:var(--muted);background:none;border:0;border-bottom:3px solid transparent;padding:8px 12px;cursor:pointer;white-space:nowrap}
+.tab[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+main{padding-block:20px 90px}
+.muted{color:var(--muted)} .sub{color:var(--muted);margin-top:2px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:500;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 14px;min-height:40px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:3px 10px;min-height:32px;font-size:13px}
+.btn.ghost{background:none;border-color:transparent;color:var(--accent)}
+.btn.danger{color:var(--bad)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.section{margin-top:26px}
+.section>h2{margin-bottom:8px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px 16px}
+.pad{padding:16px}
+.row{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.who{display:flex;align-items:center;gap:10px;min-width:150px;font-weight:500}
+.what{flex:1 1 200px;min-width:0;display:flex;flex-direction:column}
+.what small{color:var(--muted);font-size:13px}
+.av{width:36px;height:36px;flex:none;display:block}
+.av.ph{border-radius:50%;object-fit:cover;background:var(--surface2)}
+.photofield{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.photofield .av{width:72px;height:72px}
+.photofield .btns{display:flex;gap:8px;flex-wrap:wrap}
+.photofield input[type=file]{display:none}
+.av path{fill:var(--cc)} .av text{fill:var(--on-cat);font:600 15px var(--f-head);text-anchor:middle}
+.pill{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:500;white-space:nowrap}
+.pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.mute{background:var(--surface2);color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.catcard{font:inherit;color:inherit;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:12px;min-width:0}
+.catcard:hover{border-color:var(--accent)}
+.cardbox{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:12px;min-width:0}
+.cardbox:hover{border-color:var(--accent)}
+.cardbox .catcard{border:0;background:none;flex:1}
+.cardbox .editlink{align-self:flex-end;margin:0 8px 8px}
+.cc-top{display:flex;gap:10px;align-items:center}
+.cc-top .av{width:44px;height:44px}
+.cc-top b{display:block;font-family:var(--f-head);font-size:16px}
+.cc-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px}
+.cc-stats .lbl{display:block;color:var(--muted);font-size:12px}
+.cc-stats b{font-size:15px;font-variant-numeric:tabular-nums}
+.delta{font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--muted)} .delta.bad{color:var(--bad)}
+.note{background:var(--accent-soft);border-radius:10px;padding:10px 14px;display:flex;gap:6px 14px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.note.err{background:var(--warn-soft);color:var(--warn)}
+.note span{flex:1 1 220px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;min-height:32px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip .av{width:22px;height:22px} .chip .av text{font-size:17px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:640px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12.5px;font-weight:500;color:var(--muted);background:var(--surface2);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.cell{font:inherit;font-size:13px;text-align:left;border:0;border-radius:8px;padding:4px 10px;cursor:pointer;display:block;width:100%;line-height:1.35}
+.cell small{display:block;font-size:11.5px}
+.cell.bad{background:var(--bad-soft);color:var(--bad)} .cell.warn{background:var(--warn-soft);color:var(--warn)}
+.cell.ok{background:var(--ok-soft);color:var(--ok)} .cell.none{background:var(--surface2);color:var(--muted)}
+.profile{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.profile .av{width:64px;height:64px}
+.profile h1{margin-bottom:2px}
+.facts{display:flex;gap:6px 18px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+.chart{width:100%;height:auto;display:block;font-family:var(--f-body)}
+.chart text{fill:var(--muted);font-size:11px}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .ln{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.chart .pt{stroke:var(--surface);stroke-width:2}
+.chart .val{fill:var(--ink);font-size:12px;font-weight:600}
+.hist td:first-child{white-space:nowrap}
+#modal{position:fixed;inset:0;background:rgba(8,18,20,.55);display:grid;place-items:center;padding:16px;z-index:50}
+.sheet{background:var(--surface);color:var(--ink);border-radius:14px;width:100%;max-width:520px;max-height:100%;overflow:auto;padding:20px}
+.sheet h2{margin-bottom:14px}
+.field{margin-bottom:12px}
+.field label,.lab{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.sheet input,.sheet select,.sheet textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px}
+.sheet input[type="checkbox"]{width:auto;min-height:0;margin-right:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fa{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.wrow{display:flex;align-items:center;gap:10px;padding:6px 0}
+.wrow .who{flex:1;min-width:0}
+.wrow input{width:110px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:60;max-width:calc(100% - 32px);font-size:14px}
+.empty{text-align:center;padding:56px 16px;max-width:460px;margin:0 auto}
+.empty h1{margin-bottom:8px} .empty .acts{justify-content:center;margin-top:18px}
+.foot{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:13px}
+@media (max-width:480px){.two{grid-template-columns:1fr}.who{min-width:0;flex:1 1 100%}}
+@media (prefers-reduced-motion:no-preference){.catcard,.btn,.chip{transition:border-color .15s}}
+</style>
+<header class="top"><div class="wrap topin">
+  <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 19 L8 3 L18 10 Q20 9.5 22 10 L32 3 L35 19 Q37 31 20 36 Q3 31 5 19Z"/></svg><span>สมุดสุขภาพแมว</span></div>
+  <nav class="tabs" id="tabs" aria-label="เมนูหลัก"></nav>
+</div></header>
+<main class="wrap" id="app"><p class="muted">กำลังโหลด…</p></main>
+<div id="modal" hidden></div>
+<div id="toast" role="status" hidden></div>
+<script>
+(function(){
+'use strict';
+var KINDS={
+  vaccine:{label:'วัคซีน',every:365,titles:['วัคซีนรวม (FVRCP)','พิษสุนัขบ้า','ลิวคีเมีย (FeLV)']},
+  deworm:{label:'ถ่ายพยาธิ',every:90,titles:['ถ่ายพยาธิ']},
+  flea:{label:'กันเห็บหมัด',every:30,titles:['ยาหยดกันเห็บหมัด']},
+  visit:{label:'พบสัตวแพทย์ / อาการ',every:0,titles:['ตรวจสุขภาพประจำปี']},
+  weight:{label:'ชั่งน้ำหนัก',every:0,titles:[]}
+};
+var MATRIX=[['vaccine','วัคซีนรวม (FVRCP)','วัคซีนรวม'],['vaccine','พิษสุนัขบ้า','พิษสุนัขบ้า'],['deworm','ถ่ายพยาธิ','ถ่ายพยาธิ'],['flea','ยาหยดกันเห็บหมัด','กันเห็บหมัด']];
+var S={cats:[],recs:[],view:'home',catId:null,mode:'loading',slow:false,err:null,loaded:{cats:false,recs:false},kindF:'all',catF:'all',dl:null};
+var db=null,LS='catcare.v1';
+
+function $(s,r){return (r||document).querySelector(s)}
+function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pad(n){return n<10?'0'+n:''+n}
+function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function today(){return iso(new Date())}
+function parse(s){var p=String(s).split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+function days(s){return Math.round((parse(s)-parse(today()))/864e5)}
+function addDays(s,n){var d=parse(s);d.setDate(d.getDate()+n);return iso(d)}
+function fmt(s){return parse(s).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'})}
+function fmtS(s){return parse(s).toLocaleDateString('th-TH',{day:'numeric',month:'short'})}
+function age(b){if(!b)return'';var d=parse(b),n=new Date(),m=(n.getFullYear()-d.getFullYear())*12+n.getMonth()-d.getMonth();if(n.getDate()<d.getDate())m--;if(m<0)m=0;if(m<12)return m+' เดือน';var y=Math.floor(m/12),r=m%12;return y+' ปี'+(r?' '+r+' เดือน':'')}
+function kg(n){return String(Math.round(n*100)/100)}
+function newId(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function toast(m){var t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){t.hidden=true},3200)}
+
+/* ---------- derived data ---------- */
+function sortedCats(){return S.cats.slice().sort(function(a,b){return (a.order||0)-(b.order||0)||String(a.name).localeCompare(String(b.name),'th')})}
+function catById(id){for(var i=0;i<S.cats.length;i++)if(S.cats[i].id===id)return S.cats[i];return null}
+function colorOf(c){var i=sortedCats().indexOf(c);return (i<0?0:i)%7+1}
+function recsOf(id,kind){return S.recs.filter(function(r){return r.catId===id&&(!kind||r.kind===kind)}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:(b.at||0)-(a.at||0)})}
+function weightsOf(id){return recsOf(id,'weight').filter(function(r){return r.weight>0})}
+function dues(){
+  var best={};
+  S.recs.forEach(function(r){
+    if(!KINDS[r.kind]||r.kind==='weight')return;
+    var k=r.catId+'|'+r.kind+'|'+r.title,b=best[k];
+    if(!b||r.date>b.date||(r.date===b.date&&(r.at||0)>(b.at||0)))best[k]=r;
+  });
+  var out=[];
+  Object.keys(best).forEach(function(k){var r=best[k],c=catById(r.catId);if(c&&r.nextDue)out.push({rec:r,cat:c,due:r.nextDue,d:days(r.nextDue)})});
+  return out.sort(function(a,b){return a.due<b.due?-1:a.due>b.due?1:0});
+}
+function st(d){return d<0?'bad':d<=14?'warn':'ok'}
+function dueText(d){return d<0?'เกินกำหนด '+(-d)+' วัน':d===0?'วันนี้':'อีก '+d+' วัน'}
+function pill(d){return '<span class="pill '+st(d)+'">'+dueText(d)+'</span>'}
+function avatar(c,cls){
+  if(c.photo)return '<img class="av ph '+(cls||'')+'" src="'+esc(c.photo)+'" alt="">';
+  var n=colorOf(c),ch=esc(Array.from(String(c.name||'?'))[0]);
+  return '<svg class="av '+(cls||'')+'" viewBox="0 0 40 40" style="--cc:var(--c'+n+')" aria-hidden="true"><path d="M5 19 L8 3 L18 10 Q20 9.5 22 10 L32 3 L35 19 Q37 31 20 36 Q3 31 5 19Z"/><text x="20" y="27">'+ch+'</text></svg>';
+}
+
+/* ---------- storage: shared db when available, otherwise this browser only ---------- */
+function loadLocal(){try{var j=JSON.parse(localStorage.getItem(LS)||'{}');S.cats=j.cats||[];S.recs=j.recs||[]}catch(e){}}
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify({cats:S.cats,recs:S.recs}))}catch(e){}}
+function failed(e){var c=e&&e.code?' ('+e.code+')':'';toast((e&&e.code==='invalid_argument'?'บัญชีนี้ไม่มีสิทธิ์แก้ไขข้อมูลนี้':'บันทึกไม่สำเร็จ ลองอีกครั้ง')+c);throw e}
+function coll(name){return name==='cats'?'cats':'records'}
+function put(name,obj){
+  var id=obj.id||newId(name==='cats'?'c':'r'),data={};
+  Object.keys(obj).forEach(function(k){if(k!=='id'&&obj[k]!==undefined)data[k]=obj[k]});
+  if(db)return db.collection(coll(name)).doc(id).set(data).then(function(){return id},failed);
+  var arr=name==='cats'?S.cats:S.recs,o=Object.assign({id:id},data),hit=false;
+  for(var i=0;i<arr.length;i++)if(arr[i].id===id){arr[i]=o;hit=true}
+  if(!hit)arr.push(o);
+  saveLocal();render();return Promise.resolve(id);
+}
+function del(name,id){
+  if(db)return db.collection(coll(name)).doc(id).delete().catch(failed);
+  var key=name==='cats'?'cats':'recs';S[key]=S[key].filter(function(x){return x.id!==id});saveLocal();render();return Promise.resolve();
+}
+function chain(items,fn){return items.reduce(function(p,x){return p.then(function(){return fn(x)})},Promise.resolve())}
+function sub(name,key){
+  db.collection(coll(name)).onSnapshot(function(snap){
+    S[key]=snap.docs.map(function(d){var o=d.data()||{};o.id=d.id;return o});
+    S.loaded[name==='cats'?'cats':'recs']=true;S.err=null;render();
+  },function(e){S.err=(e&&e.code)||'unavailable';render()});
+}
+function goLocal(){S.mode='local';loadLocal();S.loaded.cats=S.loaded.recs=true;render()}
+function init(){
+  render();
+  var c=window.claude;
+  if(!c||!c.use){goLocal();return}
+  setTimeout(function(){if(S.mode==='loading'){S.slow=true;render()}},10000);
+  c.use('downloads').then(function(d){S.dl=d||null;render()},function(){});
+  c.use('db').then(function(d){
+    if(!d){goLocal();return}
+    db=d;S.mode='cloud';sub('cats','cats');sub('records','recs');
+  },goLocal);
+}
+
+/* ---------- views ---------- */
+function renderTabs(){
+  var t=[['home','ภาพรวม'],['schedule','ตารางนัด'],['cat','รายตัว']];
+  $('#tabs').innerHTML=t.map(function(x){return '<button class="tab" data-act="tab" data-view="'+x[0]+'"'+(S.view===x[0]?' aria-current="page"':'')+'>'+x[1]+'</button>'}).join('');
+}
+function render(){
+  renderTabs();
+  var app=$('#app');
+  if(!(S.loaded.cats&&S.loaded.recs)){
+    app.innerHTML=S.err?'<div class="note err"><span>เชื่อมต่อฐานข้อมูลไม่ได้ในขณะนี้ ลองเปิดหน้านี้ใหม่อีกครั้ง</span></div>':
+      '<p class="muted">กำลังโหลดข้อมูล…'+(S.slow?' ใช้เวลานานกว่าปกติ ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต':'')+'</p>';
+    return;
+  }
+  if(!S.cats.length){app.innerHTML=emptyHtml();return}
+  var h='';
+  if(S.mode==='local')h+='<div class="note err"><span>ข้อมูลชุดนี้เก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น ถ้าต้องการให้ใช้ได้ทุกเครื่อง ให้เปิดหน้านี้ผ่าน claude.ai ขณะลงชื่อเข้าใช้</span></div>';
+  if(S.cats.some(function(c){return c.example}))h+='<div class="note"><span>ตอนนี้เป็นข้อมูลตัวอย่าง แก้ชื่อและบันทึกของแมวแต่ละตัวได้เลย หรือลบตัวอย่างทั้งหมดแล้วเริ่มกรอกข้อมูลจริง</span><button class="btn sm" data-act="clear-ex">ลบข้อมูลตัวอย่าง</button></div>';
+  h+=S.view==='schedule'?schedule():S.view==='cat'?catView():home();
+  app.innerHTML=h;
+}
+function emptyHtml(){
+  return '<div class="empty"><h1>ยังไม่มีแมวในสมุด</h1><p class="muted">เพิ่มแมวทีละตัว แล้วบันทึกวัคซีน ยาถ่ายพยาธิ น้ำหนัก และอาการต่าง ๆ ระบบจะนับวันนัดครั้งถัดไปให้เอง</p><div class="acts"><button class="btn primary" data-act="add-cat">+ เพิ่มแมวตัวแรก</button></div></div>';
+}
+function dueRow(x,showCat){
+  var r=x.rec;
+  return '<div class="row">'+(showCat?'<div class="who">'+avatar(x.cat)+esc(x.cat.name)+'</div>':'')+
+    '<div class="what"><b>'+esc(r.title)+'</b><small>'+KINDS[r.kind].label+' · กำหนด '+fmt(x.due)+'</small></div>'+pill(x.d)+
+    '<button class="btn sm" data-act="done" data-cat="'+esc(r.catId)+'" data-kind="'+r.kind+'" data-title="'+esc(r.title)+'">บันทึกว่าทำแล้ว</button></div>';
+}
+function home(){
+  var cats=sortedCats(),ds=dues(),over=ds.filter(function(x){return x.d<0}).length,soon=ds.filter(function(x){return x.d>=0&&x.d<=14}).length;
+  var sum=(over?'<span class="pill bad">เกินกำหนด '+over+' รายการ</span> ':'')+(soon?'<span class="pill warn">ใกล้ถึงกำหนด '+soon+' รายการ</span>':'')+(!over&&!soon?'<span class="pill ok">ไม่มีรายการค้าง</span>':'');
+  var h='<div class="head"><div><h1>ภาพรวมฝูง</h1><p class="sub">'+cats.length+' ตัว · '+sum+'</p></div><div class="acts"><button class="btn" data-act="weigh-all">ชั่งน้ำหนักทั้งฝูง</button><button class="btn primary" data-act="add-rec">+ บันทึกใหม่</button></div></div>';
+  h+='<div class="section"><h2>รายการถัดไป</h2>';
+  h+=ds.length?'<div class="panel">'+ds.slice(0,8).map(function(x){return dueRow(x,true)}).join('')+'</div>'+(ds.length>8?'<p class="muted" style="margin-top:8px">ดูทั้งหมดในแท็บตารางนัด</p>':''):'<div class="panel pad muted">ยังไม่มีรายการนัด บันทึกวัคซีนหรือยาถ่ายพยาธิพร้อมวันนัดครั้งถัดไป รายการจะมาแสดงที่นี่</div>';
+  h+='</div><div class="section"><h2>แมวทั้งหมด <button class="btn sm ghost" data-act="add-cat">+ เพิ่มแมว</button></h2><div class="grid">';
+  cats.forEach(function(c){
+    var w=weightsOf(c.id),nx=ds.filter(function(x){return x.cat.id===c.id})[0],dl='';
+    if(w.length>1){
+      var df=w[0].weight-w[1].weight,pc=df/w[1].weight*100;
+      dl=' <span class="delta'+(pc<=-5?' bad':'')+'">'+(df>0?'+':df<0?'−':'±')+kg(Math.abs(df))+(pc<=-5?' น้ำหนักลด':'')+'</span>';
+    }
+    h+='<div class="cardbox"><button class="catcard" data-act="open-cat" data-id="'+esc(c.id)+'"><div class="cc-top">'+avatar(c)+'<div><b>'+esc(c.name)+'</b><span class="muted">'+(c.sex==='f'?'เพศเมีย':'เพศผู้')+(c.born?' · '+age(c.born):'')+'</span></div></div>'+
+      '<div class="cc-stats"><div><span class="lbl">น้ำหนักล่าสุด</span><b>'+(w.length?kg(w[0].weight)+' กก.':'—')+'</b>'+dl+'</div>'+
+      '<div><span class="lbl">นัดถัดไป</span>'+(nx?pill(nx.d)+'<br><span class="muted">'+esc(nx.rec.title)+'</span>':'<span class="muted">—</span>')+'</div></div></button><button class="btn sm ghost editlink" data-act="edit-cat" data-id="'+esc(c.id)+'">แก้ไขข้อมูล</button></div>';
+  });
+  h+='</div></div><div class="foot">'+(S.dl?'<button class="btn sm" data-act="csv">ส่งออกข้อมูลทั้งหมด (CSV)</button>':'')+'<span>ช่วงเวลาที่ตั้งไว้เป็นค่าเริ่มต้น ปรับตามที่สัตวแพทย์แนะนำได้</span></div>';
+  return h;
+}
+function schedule(){
+  var cats=sortedCats(),ds=dues(),map={};
+  ds.forEach(function(x){map[x.rec.catId+'|'+x.rec.kind+'|'+x.rec.title]=x});
+  var h='<div class="head"><div><h1>ตารางนัดทั้งฝูง</h1><p class="sub">วันนัดครั้งถัดไปของแมวแต่ละตัว กดช่องเพื่อบันทึกว่าทำแล้ว</p></div><div class="acts"><button class="btn primary" data-act="add-rec">+ บันทึกใหม่</button></div></div>';
+  h+='<div class="tablewrap"><table><thead><tr><th>แมว</th>'+MATRIX.map(function(m){return '<th>'+m[2]+'</th>'}).join('')+'</tr></thead><tbody>';
+  cats.forEach(function(c){
+    h+='<tr><td><div class="who" style="min-width:0">'+avatar(c)+esc(c.name)+'</div></td>';
+    MATRIX.forEach(function(m){
+      var x=map[c.id+'|'+m[0]+'|'+m[1]],a='data-act="done" data-cat="'+esc(c.id)+'" data-kind="'+m[0]+'" data-title="'+esc(m[1])+'"';
+      h+='<td>'+(x?'<button class="cell '+st(x.d)+'" '+a+'>'+fmt(x.due)+'<small>'+dueText(x.d)+'</small></button>':'<button class="cell none" '+a+'>ยังไม่มีบันทึก</button>')+'</td>';
+    });
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  var kinds=['all','vaccine','deworm','flea','visit'];
+  h+='<div class="section"><h2>รายการทั้งหมด</h2><div class="chips" style="margin-bottom:10px">'+kinds.map(function(k){return '<button class="chip" data-act="kind-f" data-k="'+k+'" aria-pressed="'+(S.kindF===k)+'">'+(k==='all'?'ทุกประเภท':KINDS[k].label)+'</button>'}).join('')+'</div>';
+  h+='<div class="field" style="max-width:260px"><label class="lab" for="catf">แมว</label><select id="catf" class="sel" style="width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:40px"><option value="all">ทุกตัว</option>'+cats.map(function(c){return '<option value="'+esc(c.id)+'"'+(S.catF===c.id?' selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select></div>';
+  var f=ds.filter(function(x){return (S.kindF==='all'||x.rec.kind===S.kindF)&&(S.catF==='all'||x.cat.id===S.catF)});
+  var g=[['เกินกำหนด',f.filter(function(x){return x.d<0})],['ภายใน 30 วัน',f.filter(function(x){return x.d>=0&&x.d<=30})],['หลังจากนั้น',f.filter(function(x){return x.d>30})]];
+  var any=false;
+  g.forEach(function(p){if(p[1].length){any=true;h+='<h3 style="margin:14px 0 6px">'+p[0]+' ('+p[1].length+')</h3><div class="panel">'+p[1].map(function(x){return dueRow(x,true)}).join('')+'</div>'}});
+  if(!any)h+='<div class="panel pad muted">ไม่มีรายการตามตัวกรองนี้</div>';
+  return h+'</div>';
+}
+function niceStep(r){var c=[0.1,0.2,0.25,0.5,1,2];for(var i=0;i<c.length;i++)if(r/c[i]<=5)return c[i];return 5}
+function chart(c){
+  var w=weightsOf(c.id).slice().reverse();
+  if(w.length<2)return '<p class="muted">'+(w.length?'บันทึกน้ำหนักแล้ว 1 ครั้ง ('+kg(w[0].weight)+' กก.) ชั่งอีกครั้งเพื่อดูกราฟแนวโน้ม':'ยังไม่มีบันทึกน้ำหนัก')+'</p>';
+  var W=640,H=230,L=44,R=24,T=22,B=34,vs=w.map(function(x){return x.weight}),mn=Math.min.apply(null,vs),mx=Math.max.apply(null,vs);
+  var step=niceStep(Math.max(mx-mn,0.2)/4),t0=Math.floor((mn-0.05)/step)*step,t1=Math.ceil((mx+0.05)/step)*step;
+  var a=parse(w[0].date).getTime(),b=parse(w[w.length-1].date).getTime(),sp=b-a||1;
+  function X(d){return L+(parse(d).getTime()-a)/sp*(W-L-R)}
+  function Y(v){return T+(1-(v-t0)/(t1-t0))*(H-T-B)}
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="กราฟน้ำหนักของ '+esc(c.name)+' ตั้งแต่ '+fmt(w[0].date)+' ถึง '+fmt(w[w.length-1].date)+'">';
+  for(var v=t0;v<=t1+step/2;v+=step){s+='<line class="gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(L-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+kg(v)+'</text>'}
+  s+='<text x="'+L+'" y="12">กก.</text>';
+  var col='var(--c'+colorOf(c)+')',path=w.map(function(x,i){return (i?'L':'M')+X(x.date).toFixed(1)+' '+Y(x.weight).toFixed(1)}).join(' ');
+  s+='<path class="ln" d="'+path+'" style="stroke:'+col+'"/>';
+  var every=Math.ceil(w.length/6);
+  w.forEach(function(x,i){
+    var px=X(x.date),py=Y(x.weight),last=i===w.length-1;
+    s+='<circle class="pt" cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="'+(last?5:4)+'" style="fill:'+col+'"><title>'+fmt(x.date)+' · '+kg(x.weight)+' กก.</title></circle>';
+    if(last)s+='<text class="val" x="'+px.toFixed(1)+'" y="'+(py-10).toFixed(1)+'" text-anchor="end">'+kg(x.weight)+'</text>';
+    if(i%every===0||last)s+='<text x="'+px.toFixed(1)+'" y="'+(H-12)+'" text-anchor="'+(i===0?'start':last?'end':'middle')+'">'+fmtS(x.date)+'</text>';
+  });
+  return s+'</svg>';
+}
+function catView(){
+  var cats=sortedCats(),c=catById(S.catId)||cats[0];S.catId=c.id;
+  var h='<div class="chips" style="margin-bottom:18px">'+cats.map(function(x){return '<button class="chip" data-act="open-cat" data-id="'+esc(x.id)+'" aria-pressed="'+(x.id===c.id)+'">'+avatar(x)+esc(x.name)+'</button>'}).join('')+'</div>';
+  h+='<div class="panel pad"><div class="profile">'+avatar(c)+'<div style="flex:1 1 220px;min-width:0"><h1>'+esc(c.name)+'</h1><div class="facts"><span>'+(c.sex==='f'?'เพศเมีย':'เพศผู้')+'</span>'+(c.born?'<span>เกิด '+fmt(c.born)+' ('+age(c.born)+')</span>':'')+(c.breed?'<span>'+esc(c.breed)+'</span>':'')+(c.color?'<span>สี/ลาย '+esc(c.color)+'</span>':'')+(c.adopted?'<span>รับเลี้ยง '+fmt(c.adopted)+'</span>':'')+(c.chip?'<span>ไมโครชิป '+esc(c.chip)+'</span>':'')+(c.vet?'<span>คลินิกประจำ '+esc(c.vet)+'</span>':'')+'<span>'+(c.neutered?'ทำหมันแล้ว':'ยังไม่ทำหมัน')+'</span></div>'+(c.diet?'<p style="margin-top:6px"><span class="muted">อาหาร / ที่แพ้:</span> '+esc(c.diet)+'</p>':'')+(c.note?'<p style="margin-top:6px">'+esc(c.note)+'</p>':'')+'</div><div class="acts"><button class="btn sm" data-act="edit-cat" data-id="'+esc(c.id)+'">แก้ไขข้อมูลแมว</button><button class="btn sm danger" data-act="del-cat" data-id="'+esc(c.id)+'">ลบ</button></div></div></div>';
+  h+='<div class="section"><h2>บันทึกอย่างรวดเร็ว</h2><div class="chips">'+['vaccine','deworm','flea','weight','visit'].map(function(k){return '<button class="btn sm" data-act="add-rec" data-cat="'+esc(c.id)+'" data-kind="'+k+'">+ '+KINDS[k].label+'</button>'}).join('')+'</div></div>';
+  var mine=dues().filter(function(x){return x.cat.id===c.id});
+  h+='<div class="section"><h2>นัดถัดไป</h2>'+(mine.length?'<div class="panel">'+mine.map(function(x){return dueRow(x,false)}).join('')+'</div>':'<div class="panel pad muted">ยังไม่มีรายการนัดของ '+esc(c.name)+'</div>')+'</div>';
+  h+='<div class="section"><h2>น้ำหนัก</h2><div class="panel pad">'+chart(c)+'</div></div>';
+  var rs=recsOf(c.id);
+  h+='<div class="section"><h2>ประวัติทั้งหมด ('+rs.length+')</h2>'+(rs.length?'<div class="tablewrap"><table class="hist"><thead><tr><th>วันที่</th><th>ประเภท</th><th>รายละเอียด</th><th></th></tr></thead><tbody>'+rs.slice(0,120).map(function(r){
+    var d=r.kind==='weight'?'<b>'+kg(r.weight)+' กก.</b>':'<b>'+esc(r.title)+'</b>'+(r.nextDue?' <span class="muted">· นัดต่อ '+fmt(r.nextDue)+'</span>':'');
+    return '<tr><td>'+fmt(r.date)+'</td><td><span class="pill mute">'+KINDS[r.kind].label+'</span></td><td>'+d+(r.vet?'<br><span class="muted">'+esc(r.vet)+'</span>':'')+(r.note?'<br><span class="muted">'+esc(r.note)+'</span>':'')+'</td><td style="white-space:nowrap"><button class="btn sm ghost" data-act="edit-rec" data-id="'+esc(r.id)+'">แก้ไข</button><button class="btn sm ghost danger" data-act="del-rec" data-id="'+esc(r.id)+'">ลบ</button></td></tr>';
+  }).join('')+'</tbody></table></div>':'<div class="panel pad muted">ยังไม่มีประวัติ</div>')+'</div>';
+  return h;
+}
+
+/* ---------- dialogs and forms ---------- */
+function openModal(h){var m=$('#modal');m.innerHTML='<div class="sheet" role="dialog" aria-modal="true">'+h+'</div>';m.hidden=false;var f=m.querySelector('input:not([type=hidden]),select,textarea');if(f)f.focus()}
+function closeModal(){var m=$('#modal');m.hidden=true;m.innerHTML=''}
+function confirmSheet(title,msg,yes,fn){
+  openModal('<h2>'+esc(title)+'</h2><p class="muted">'+esc(msg)+'</p><div class="fa"><button class="btn" data-act="close">ยกเลิก</button><button class="btn primary" id="yes">'+esc(yes)+'</button></div>');
+  $('#yes').onclick=function(){fn()};
+}
+var pendingPhoto;
+function photoBox(c){
+  var src=pendingPhoto===undefined?c.photo:pendingPhoto;
+  var pv=src?'<img class="av ph" src="'+esc(src)+'" alt="รูปแมว">':avatar(c.name?c:{name:'?',id:'x'});
+  return '<div class="photofield" id="photobox">'+pv+'<div class="btns"><label class="btn sm" for="f-photo" style="display:inline-flex;align-items:center">'+(src?'เปลี่ยนรูป':'เลือกรูป')+'</label><input type="file" id="f-photo" accept="image/*">'+(src?'<button type="button" class="btn sm danger" data-act="rm-photo">ลบรูป</button>':'')+'</div></div>';
+}
+function resizePhoto(file){
+  return new Promise(function(ok,no){
+    var fr=new FileReader();
+    fr.onerror=no;
+    fr.onload=function(){var im=new Image();im.onerror=no;im.onload=function(){
+      var s=Math.min(im.width,im.height),N=360,cv=document.createElement('canvas');cv.width=cv.height=N;
+      cv.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,N,N);
+      ok(cv.toDataURL('image/jpeg',0.82))};im.src=fr.result};
+    fr.readAsDataURL(file);
+  });
+}
+function catForm(c){
+  c=c||{};
+  pendingPhoto=undefined;window.__editCat=c;
+  openModal('<h2>'+(c.id?'แก้ไขข้อมูลแมว':'เพิ่มแมว')+'</h2><form id="catform" data-id="'+esc(c.id||'')+'">'+photoBox(c)+
+    '<div class="field"><label for="f-name">ชื่อ</label><input id="f-name" required maxlength="40" value="'+esc(c.name||'')+'"></div>'+
+    '<div class="two"><div class="field"><label for="f-sex">เพศ</label><select id="f-sex"><option value="m"'+(c.sex!=='f'?' selected':'')+'>เพศผู้</option><option value="f"'+(c.sex==='f'?' selected':'')+'>เพศเมีย</option></select></div>'+
+    '<div class="field"><label for="f-born">วันเกิด (ประมาณได้)</label><input type="date" id="f-born" value="'+esc(c.born||'')+'"></div></div>'+
+    '<div class="two"><div class="field"><label for="f-breed">สายพันธุ์</label><input id="f-breed" maxlength="60" value="'+esc(c.breed||'')+'"></div>'+
+    '<div class="field"><label for="f-color">สี / ลาย</label><input id="f-color" maxlength="60" value="'+esc(c.color||'')+'"></div></div>'+
+    '<div class="two"><div class="field"><label for="f-adopted">วันที่รับเลี้ยง</label><input type="date" id="f-adopted" value="'+esc(c.adopted||'')+'"></div>'+
+    '<div class="field"><label for="f-chip">เลขไมโครชิป</label><input id="f-chip" maxlength="30" inputmode="numeric" value="'+esc(c.chip||'')+'"></div></div>'+
+    '<div class="field"><label for="f-cvet">คลินิก / สัตวแพทย์ประจำ</label><input id="f-cvet" maxlength="80" value="'+esc(c.vet||'')+'"></div>'+
+    '<div class="field"><label for="f-diet">อาหารที่กิน / ที่แพ้</label><input id="f-diet" maxlength="120" value="'+esc(c.diet||'')+'"></div>'+
+    '<div class="field"><label><input type="checkbox" id="f-neu"'+(c.neutered?' checked':'')+'>ทำหมันแล้ว</label></div>'+
+    '<div class="field"><label for="f-note">หมายเหตุ (นิสัย อาหาร ที่แพ้)</label><textarea id="f-note" rows="2" maxlength="300">'+esc(c.note||'')+'</textarea></div>'+
+    '<div class="fa"><button type="button" class="btn" data-act="close">ยกเลิก</button><button class="btn primary" type="submit">บันทึก</button></div></form>');
+}
+function recForm(o){
+  o=o||{};
+  var cats=sortedCats(),kind=o.kind||'vaccine',date=o.date||today(),cid=o.catId||S.catId||(cats[0]&&cats[0].id);
+  var title=o.title!==undefined?o.title:'';
+  openModal('<h2>'+(o.id?'แก้ไขบันทึก':'บันทึกใหม่')+'</h2><form id="recform" data-id="'+esc(o.id||'')+'" data-at="'+(o.at||'')+'">'+
+    '<div class="two"><div class="field"><label for="f-cat">แมว</label><select id="f-cat">'+cats.map(function(c){return '<option value="'+esc(c.id)+'"'+(c.id===cid?' selected':'')+'>'+esc(c.name)+'</option>'}).join('')+'</select></div>'+
+    '<div class="field"><label for="f-kind">ประเภท</label><select id="f-kind">'+Object.keys(KINDS).map(function(k){return '<option value="'+k+'"'+(k===kind?' selected':'')+'>'+KINDS[k].label+'</option>'}).join('')+'</select></div></div>'+
+    '<div class="two"><div class="field"><label for="f-date">วันที่ทำ</label><input type="date" id="f-date" required value="'+date+'"></div>'+
+    '<div class="field" data-grp="w"><label for="f-w">น้ำหนัก (กก.)</label><input type="number" id="f-w" step="0.01" min="0.1" max="30" inputmode="decimal" value="'+(o.weight||'')+'"></div></div>'+
+    '<div class="field" data-grp="t"><label for="f-title">รายการ</label><input id="f-title" list="f-opts" maxlength="80" value="'+esc(title)+'"><datalist id="f-opts"></datalist></div>'+
+    '<div class="field" data-grp="t"><label for="f-next" id="f-nextl">นัดครั้งถัดไป</label><input type="date" id="f-next" value="'+esc(o.nextDue||'')+'" data-auto="'+(o.id||o.nextDue?'0':'1')+'"></div>'+
+    '<div class="field" data-grp="t"><label for="f-vet">คลินิก / สัตวแพทย์</label><input id="f-vet" maxlength="80" value="'+esc(o.vet||'')+'"></div>'+
+    '<div class="field"><label for="f-note">หมายเหตุ (ล็อตวัคซีน อาการ ค่ารักษา)</label><textarea id="f-note" rows="2" maxlength="400">'+esc(o.note||'')+'</textarea></div>'+
+    '<div class="fa"><button type="button" class="btn" data-act="close">ยกเลิก</button><button class="btn primary" type="submit">บันทึก</button></div></form>');
+  syncKind(!o.id&&o.title===undefined);
+}
+function syncKind(setTitle){
+  var k=$('#f-kind').value,K=KINDS[k],isW=k==='weight';
+  document.querySelectorAll('#recform [data-grp="w"]').forEach(function(e){e.hidden=!isW});
+  document.querySelectorAll('#recform [data-grp="t"]').forEach(function(e){e.hidden=isW});
+  $('#f-opts').innerHTML=K.titles.map(function(t){return '<option value="'+esc(t)+'">'}).join('');
+  $('#f-nextl').textContent=k==='visit'?'นัดติดตามผล (ถ้ามี)':'นัดครั้งถัดไป';
+  var ti=$('#f-title');
+  if(setTitle||!ti.value)ti.value=K.titles[0]||'';
+  var nx=$('#f-next');
+  if(nx.dataset.auto==='1')nx.value=K.every&&$('#f-date').value?addDays($('#f-date').value,K.every):'';
+}
+function saveRec(f){
+  var k=$('#f-kind').value,o={id:f.dataset.id||undefined,catId:$('#f-cat').value,kind:k,date:$('#f-date').value,at:+f.dataset.at||Date.now()};
+  if(!o.catId||!o.date){toast('เลือกแมวและวันที่ก่อน');return}
+  if(k==='weight'){var w=parseFloat($('#f-w').value);if(!(w>0&&w<30)){toast('กรอกน้ำหนักเป็นกิโลกรัม เช่น 3.8');return}o.weight=w;o.title='ชั่งน้ำหนัก'}
+  else{o.title=$('#f-title').value.trim()||KINDS[k].titles[0]||KINDS[k].label;if($('#f-next').value)o.nextDue=$('#f-next').value;if($('#f-vet').value.trim())o.vet=$('#f-vet').value.trim()}
+  if($('#f-note').value.trim())o.note=$('#f-note').value.trim();
+  put('records',o).then(function(){closeModal();toast('บันทึกแล้ว')},function(){});
+}
+function saveCat(f){
+  var n=$('#f-name').value.trim();if(!n)return;
+  var old=catById(f.dataset.id),o={id:f.dataset.id||undefined,name:n,sex:$('#f-sex').value,neutered:$('#f-neu').checked,order:old?old.order:S.cats.reduce(function(m,c){return Math.max(m,c.order||0)},0)+1,at:old&&old.at||Date.now()};
+  var ph=pendingPhoto===undefined?(old&&old.photo):pendingPhoto;if(ph)o.photo=ph;
+  if($('#f-born').value)o.born=$('#f-born').value;
+  [['breed','#f-breed'],['color','#f-color'],['adopted','#f-adopted'],['chip','#f-chip'],['vet','#f-cvet'],['diet','#f-diet']].forEach(function(p){var v=$(p[1]).value.trim();if(v)o[p[0]]=v});
+  if($('#f-note').value.trim())o.note=$('#f-note').value.trim();
+  put('cats',o).then(function(id){closeModal();S.catId=id;toast('บันทึกแล้ว')},function(){});
+}
+function weighForm(){
+  var cats=sortedCats();
+  openModal('<h2>ชั่งน้ำหนักทั้งฝูง</h2><form id="weighform"><div class="field"><label for="f-date">วันที่ชั่ง</label><input type="date" id="f-date" required value="'+today()+'"></div>'+
+    cats.map(function(c){var w=weightsOf(c.id)[0];return '<div class="wrow"><div class="who">'+avatar(c)+'<span>'+esc(c.name)+'</span></div><span class="muted" style="font-size:13px">'+(w?'ล่าสุด '+kg(w.weight):'')+'</span><input type="number" step="0.01" min="0.1" max="30" inputmode="decimal" data-cat="'+esc(c.id)+'" placeholder="กก." aria-label="น้ำหนักของ '+esc(c.name)+' (กก.)"></div>'}).join('')+
+    '<p class="muted" style="font-size:13px;margin-top:6px">เว้นว่างไว้ถ้าวันนี้ไม่ได้ชั่งตัวนั้น</p><div class="fa"><button type="button" class="btn" data-act="close">ยกเลิก</button><button class="btn primary" type="submit">บันทึก</button></div></form>');
+}
+function saveWeigh(){
+  var d=$('#f-date').value,items=[];
+  document.querySelectorAll('#weighform input[data-cat]').forEach(function(i){var w=parseFloat(i.value);if(w>0&&w<30)items.push({catId:i.dataset.cat,weight:w})});
+  if(!items.length){toast('ยังไม่ได้กรอกน้ำหนัก');return}
+  chain(items,function(x){return put('records',{catId:x.catId,kind:'weight',title:'ชั่งน้ำหนัก',weight:x.weight,date:d,at:Date.now()})}).then(function(){closeModal();toast('บันทึกน้ำหนัก '+items.length+' ตัวแล้ว')},function(){});
+}
+function exportCsv(){
+  var q=function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'};
+  var rows=[['วันที่','แมว','ประเภท','รายการ','น้ำหนัก (กก.)','นัดครั้งถัดไป','คลินิก/สัตวแพทย์','หมายเหตุ']];
+  S.recs.slice().sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:0}).forEach(function(r){var c=catById(r.catId);if(c)rows.push([r.date,c.name,KINDS[r.kind]?KINDS[r.kind].label:r.kind,r.title,r.weight||'',r.nextDue||'',r.vet||'',r.note||''])});
+  S.dl.save({filename:'cat-health-'+today()+'.csv',data:'﻿'+rows.map(function(r){return r.map(q).join(',')}).join('\r\n')}).then(function(){toast('บันทึกไฟล์แล้ว')},function(e){if(!e||e.code!=='declined')toast('ส่งออกไฟล์ไม่สำเร็จ')});
+}
+
+/* ---------- events ---------- */
+function act(t){
+  var a=t.dataset.act,id=t.dataset.id;
+  if(a==='tab'){S.view=t.dataset.view;render();window.scrollTo(0,0)}
+  else if(a==='open-cat'){S.catId=id;S.view='cat';render();window.scrollTo(0,0)}
+  else if(a==='close')closeModal();
+  else if(a==='add-cat')catForm();
+  else if(a==='edit-cat')catForm(catById(id));
+  else if(a==='rm-photo'){pendingPhoto='';var b=$('#photobox');if(b)b.outerHTML=photoBox(window.__editCat||{})}
+  else if(a==='del-cat'){var c=catById(id);confirmSheet('ลบ '+c.name+'?','ประวัติวัคซีน น้ำหนัก และบันทึกทั้งหมดของ '+c.name+' จะถูกลบด้วย และกู้คืนไม่ได้','ลบถาวร',function(){
+    chain(S.recs.filter(function(r){return r.catId===id}),function(r){return del('records',r.id)}).then(function(){return del('cats',id)}).then(function(){S.catId=null;closeModal();toast('ลบแล้ว')},function(){})})}
+  else if(a==='add-rec')recForm({catId:t.dataset.cat,kind:t.dataset.kind});
+  else if(a==='done')recForm({catId:t.dataset.cat,kind:t.dataset.kind,title:t.dataset.title,date:today()});
+  else if(a==='edit-rec'){var r=S.recs.filter(function(x){return x.id===id})[0];if(r)recForm(r)}
+  else if(a==='del-rec')confirmSheet('ลบบันทึกนี้?','บันทึกจะถูกลบถาวร','ลบ',function(){del('records',id).then(function(){closeModal();toast('ลบแล้ว')},function(){})});
+  else if(a==='weigh-all')weighForm();
+  else if(a==='kind-f'){S.kindF=t.dataset.k;render()}
+  else if(a==='csv')exportCsv();
+  else if(a==='clear-ex')confirmSheet('ลบข้อมูลตัวอย่าง?','แมวและบันทึกที่เป็นข้อมูลตัวอย่างจะถูกลบ ข้อมูลที่คุณเพิ่มเองจะอยู่ต่อ','ลบตัวอย่าง',function(){
+    var rs=S.recs.filter(function(r){return r.example}),cs=S.cats.filter(function(c){return c.example});
+    chain(rs,function(r){return del('records',r.id)}).then(function(){return chain(cs,function(c){return del('cats',c.id)})}).then(function(){S.catId=null;closeModal();toast('ลบข้อมูลตัวอย่างแล้ว')},function(){})});
+}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-act]');
+  if(t){act(t);return}
+  if(e.target.id==='modal')closeModal();
+});
+document.addEventListener('submit',function(e){
+  e.preventDefault();
+  var f=e.target;
+  if(f.id==='catform')saveCat(f);else if(f.id==='recform')saveRec(f);else if(f.id==='weighform')saveWeigh();
+});
+document.addEventListener('change',function(e){
+  var i=e.target.id;
+  if(i==='f-photo'){var fl=e.target.files&&e.target.files[0];if(fl)resizePhoto(fl).then(function(u){pendingPhoto=u;var b=$('#photobox');if(b)b.outerHTML=photoBox(window.__editCat||{})},function(){toast('เปิดรูปนี้ไม่ได้ ลองไฟล์ JPG หรือ PNG')})}
+  else if(i==='catf'){S.catF=e.target.value;render()}
+  else if(i==='f-kind'){var ti=$('#f-title'),prev=ti.value,all=[];Object.keys(KINDS).forEach(function(k){all=all.concat(KINDS[k].titles)});if(all.indexOf(prev)>-1)ti.value='';syncKind(true)}
+  else if(i==='f-date'&&$('#f-next')&&$('#f-next').dataset.auto==='1')syncKind(false);
+});
+document.addEventListener('input',function(e){if(e.target.id==='f-next')e.target.dataset.auto='0'});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal()});
+init();
+})();
+</script>
+
+</body></html>
